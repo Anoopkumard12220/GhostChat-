@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ghost Link V2 — Anonymous Chat</title>
+<meta name="theme-color" content="#080c12">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="screen active">
+  <div class="auth-bg">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="ghost-icon"><i class="fas fa-ghost"></i></div>
+      <h1>Ghost Link <span class="v2-badge">V2</span></h1>
+      <p class="auth-tagline">Anonymous. Encrypted. Ephemeral.</p>
+    </div>
+    <div class="auth-card glass-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="anon">Ghost Entry</button>
+        <button class="auth-tab" data-tab="custom">Custom Identity</button>
+      </div>
+      <div class="auth-pane active" id="anonPane">
+        <p class="auth-hint">Enter as a ghost — fully anonymous, no data stored.</p>
+        <button class="btn-primary full-width" id="anonLoginBtn"><i class="fas fa-ghost"></i> Enter as Ghost</button>
+      </div>
+      <div class="auth-pane" id="customPane">
+        <input type="text" class="ghost-input" id="customUsername" placeholder="Choose your alias..." maxlength="20">
+        <button class="btn-primary full-width" id="customLoginBtn"><i class="fas fa-mask"></i> Enter with Alias</button>
+      </div>
+    </div>
+    <p class="auth-note">No email. No password. Just a ghost link.</p>
+    <div class="auth-footer">
+      <div class="auth-social-links">
+        <a href="https://www.instagram.com/heyy.anoop_" target="_blank" class="auth-social-btn ig"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:anoopkumardubey2k6@gmail.com" class="auth-social-btn email"><i class="fas fa-envelope"></i></a>
+        <a href="https://anoopdubey.gt.tc" target="_blank" class="auth-social-btn web"><i class="fas fa-globe"></i></a>
+      </div>
+      <p class="auth-dev-credit">Developed by <span>Anoop Kumar Dubey 🚀</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="screen hidden">
+  <header class="top-bar glass-card">
+    <div class="top-bar-left">
+      <div class="ghost-icon-sm"><i class="fas fa-ghost"></i></div>
+      <span class="app-name">Ghost Link <span class="v2-badge-sm">V2</span></span>
+    </div>
+    <div class="top-bar-right">
+      <button class="icon-btn" id="notifBtn" title="Enable Notifications"><i class="fas fa-bell"></i></button>
+      <button class="icon-btn" id="igBtn" title="Instagram"><i class="fab fa-instagram"></i></button>
+      <div class="user-avatar-sm" id="userAvatarTop"></div>
+    </div>
+  </header>
+
+  <main class="screens-container">
+
+    <!-- CHAT SCREEN -->
+    <div class="app-screen active" id="chatScreen">
+      <div class="empty-state" id="chatEmptyState">
+        <div class="empty-icon"><i class="fas fa-comment-slash"></i></div>
+        <h3>No Room Selected</h3>
+        <p>Join or create a room to start chatting</p>
+        <button class="btn-primary" onclick="switchTab('rooms')"><i class="fas fa-door-open"></i> Go to Rooms</button>
+      </div>
+      <div class="chat-view hidden" id="chatView">
+        <div class="chat-header glass-card">
+          <button class="icon-btn" id="backToRooms"><i class="fas fa-arrow-left"></i></button>
+          <div class="chat-room-info">
+            <span class="chat-room-name" id="chatRoomName">Room Name</span>
+            <span class="chat-room-meta" id="chatRoomMeta">0 online</span>
+          </div>
+          <div class="chat-actions">
+            <button class="icon-btn" id="startAudioCall" title="Audio Call"><i class="fas fa-phone"></i></button>
+            <button class="icon-btn" id="startVideoCall" title="Video Call"><i class="fas fa-video"></i></button>
+            <button class="icon-btn" id="roomInfoBtn" title="Room Info"><i class="fas fa-ellipsis-v"></i></button>
+          </div>
+        </div>
+        <div class="messages-area" id="messagesArea">
+          <div class="messages-loader"><div class="spinner"></div></div>
+        </div>
+        <div class="typing-indicator hidden" id="typingIndicator">
+          <span></span><span></span><span></span>
+          <small id="typingText">Someone is typing...</small>
+        </div>
+        <!-- Reply bar -->
+        <div class="reply-bar hidden" id="replyBar">
+          <div class="reply-bar-inner">
+            <i class="fas fa-reply" style="color:var(--accent);font-size:12px;flex-shrink:0"></i>
+            <span id="replyBarText" class="reply-bar-text">Replying...</span>
+          </div>
+          <button class="icon-btn" id="cancelReplyBtn" style="width:26px;height:26px;font-size:12px"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chat-input-bar glass-card">
+          <button class="icon-btn" id="attachBtn"><i class="fas fa-paperclip"></i></button>
+          <input type="text" class="ghost-input msg-input" id="msgInput" placeholder="Type a ghost message...">
+          <button class="icon-btn emoji-btn" id="emojiBtn"><i class="fas fa-smile"></i></button>
+          <button class="btn-send" id="sendMsgBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
+      </div>
+    </div>
+
+    <!-- ROOMS SCREEN -->
+    <div class="app-screen" id="roomsScreen">
+      <div class="screen-header">
+        <h2>My Rooms</h2>
+        <div class="header-actions">
+          <button class="btn-primary sm" id="createRoomBtn"><i class="fas fa-plus"></i> Create</button>
+          <button class="btn-secondary sm" id="joinRoomBtn"><i class="fas fa-link"></i> Join</button>
+        </div>
+      </div>
+      <div class="rooms-list" id="roomsList">
+        <div class="loading-rooms"><div class="spinner"></div><p>Loading rooms...</p></div>
+      </div>
+    </div>
+
+    <!-- CALLS SCREEN -->
+    <div class="app-screen" id="callsScreen">
+      <div class="screen-header"><h2>Call History</h2></div>
+      <div class="call-history-list" id="callHistoryList">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-phone-slash"></i></div>
+          <h3>No Recent Calls</h3>
+          <p>Start a call from within a chat room</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div class="app-screen" id="profileScreen">
+      <div class="profile-header glass-card">
+        <div class="profile-avatar-lg" id="profileAvatarLg"></div>
+        <div class="profile-info">
+          <h2 id="profileUsername"></h2>
+          <span class="ghost-badge"><i class="fas fa-ghost"></i> Ghost Mode</span>
+        </div>
+        <button class="icon-btn" id="changeNicknameBtn" title="Change Nickname"><i class="fas fa-edit"></i></button>
+      </div>
+      <div class="profile-cards">
+        <div class="profile-card glass-card">
+          <div class="profile-card-icon"><i class="fas fa-door-open"></i></div>
+          <div><div class="profile-card-label">Rooms Joined</div><div class="profile-card-val" id="profileRoomCount">0</div></div>
+        </div>
+        <div class="profile-card glass-card">
+          <div class="profile-card-icon"><i class="fas fa-comment"></i></div>
+          <div><div class="profile-card-label">Messages Sent</div><div class="profile-card-val" id="profileMsgCount">0</div></div>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn-secondary full-width" id="copyUidBtn"><i class="fas fa-copy"></i> Copy Ghost ID</button>
+        <button class="btn-danger full-width" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Leave Ghost Mode</button>
+      </div>
+      <div class="dev-credit" id="devCredit">Developed by Anoop Kumar Dubey 🚀</div>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav glass-card">
+    <button class="nav-item active" data-tab="chat"><i class="fas fa-comment"></i><span>Chat</span></button>
+    <button class="nav-item" data-tab="rooms"><i class="fas fa-door-open"></i><span>Rooms</span></button>
+    <button class="nav-item" data-tab="calls"><i class="fas fa-phone"></i><span>Calls</span></button>
+    <button class="nav-item" data-tab="profile"><i class="fas fa-user-secret"></i><span>Profile</span></button>
+  </nav>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Create Room Modal -->
+<div class="modal-overlay hidden" id="createRoomModal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-plus-circle"></i> Create Room</h3>
+      <button class="icon-btn modal-close" data-modal="createRoomModal"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="text" class="ghost-input" id="roomNameInput" placeholder="Room name..." maxlength="30">
+    <input type="password" class="ghost-input" id="roomPasscodeInput" placeholder="Room passcode (optional)..." maxlength="20">
+    <div class="modal-toggle">
+      <label>Auto-delete messages after 24h</label>
+      <div class="toggle-switch"><input type="checkbox" id="autoDeleteToggle"><span class="toggle-track"></span></div>
+    </div>
+    <div class="modal-toggle">
+      <label>💀 Vanish Room (auto-delete when empty)</label>
+      <div class="toggle-switch"><input type="checkbox" id="vanishRoomToggle"><span class="toggle-track"></span></div>
+    </div>
+    <button class="btn-primary full-width" id="confirmCreateRoom"><i class="fas fa-ghost"></i> Create Ghost Room</button>
+  </div>
+</div>
+
+<!-- Join Room Modal -->
+<div class="modal-overlay hidden" id="joinRoomModal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-link"></i> Join Room</h3>
+      <button class="icon-btn modal-close" data-modal="joinRoomModal"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="text" class="ghost-input" id="roomCodeInput" placeholder="Enter room code..." maxlength="20">
+    <input type="password" class="ghost-input" id="joinPasscodeInput" placeholder="Passcode (if required)..." maxlength="20">
+    <button class="btn-primary full-width" id="confirmJoinRoom"><i class="fas fa-sign-in-alt"></i> Join Room</button>
+  </div>
+</div>
+
+<!-- Room Info Modal -->
+<div class="modal-overlay hidden" id="roomInfoModal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-info-circle"></i> Room Info</h3>
+      <button class="icon-btn modal-close" data-modal="roomInfoModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="room-info-content">
+      <div class="room-info-row"><span class="ri-label">Room Name</span><span class="ri-val" id="riName"></span></div>
+      <div class="room-info-row"><span class="ri-label">Room Code</span><span class="ri-val code-val" id="riCode"></span></div>
+      <div class="room-info-row"><span class="ri-label">Invite Link</span><span class="ri-val link-val" id="riLink"></span></div>
+      <button class="btn-secondary full-width" id="copyInviteBtn"><i class="fas fa-copy"></i> Copy Invite Link</button>
+      <button class="btn-secondary full-width" id="aiSummaryBtn"><i class="fas fa-brain"></i> AI Chat Summary</button>
+      <button class="btn-secondary full-width" id="leaveRoomBtn"><i class="fas fa-sign-out-alt"></i> Leave Room</button>
+      <button class="btn-danger full-width hidden" id="deleteRoomBtn"><i class="fas fa-skull"></i> Delete Room (Owner Only)</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI Summary Modal -->
+<div class="modal-overlay hidden" id="aiSummaryModal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-brain"></i> AI Chat Summary</h3>
+      <button class="icon-btn modal-close" data-modal="aiSummaryModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="aiSummaryContent" class="ai-summary-box">
+      <div class="ai-loading"><div class="spinner"></div><span>Analyzing chat...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Nickname Modal -->
+<div class="modal-overlay hidden" id="nicknameModal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit"></i> Change Nickname</h3>
+      <button class="icon-btn modal-close" data-modal="nicknameModal"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="text" class="ghost-input" id="newNicknameInput" placeholder="New nickname..." maxlength="20">
+    <button class="btn-primary full-width" id="confirmNicknameBtn"><i class="fas fa-check"></i> Update Nickname</button>
+  </div>
+</div>
+
+<!-- Emoji Picker -->
+<div class="emoji-picker glass-card hidden" id="emojiPicker">
+  <div class="emoji-grid" id="emojiGrid"></div>
+</div>
+
+<!-- Message Context Menu -->
+<div class="context-menu glass-card hidden" id="contextMenu">
+  <button class="ctx-item" id="ctxReply"><i class="fas fa-reply"></i> Reply</button>
+  <button class="ctx-item" id="ctxCopy"><i class="fas fa-copy"></i> Copy</button>
+  <button class="ctx-item" id="ctxReact"><i class="fas fa-smile"></i> React</button>
+  <button class="ctx-item ctx-delete hidden" id="ctxDelete"><i class="fas fa-trash"></i> Delete</button>
+</div>
+
+<!-- Reaction Picker -->
+<div class="reaction-picker glass-card hidden" id="reactionPicker">
+  <span class="reaction-btn" data-emoji="👍">👍</span>
+  <span class="reaction-btn" data-emoji="❤️">❤️</span>
+  <span class="reaction-btn" data-emoji="😂">😂</span>
+  <span class="reaction-btn" data-emoji="😮">😮</span>
+  <span class="reaction-btn" data-emoji="😢">😢</span>
+  <span class="reaction-btn" data-emoji="🔥">🔥</span>
+</div>
+
+<!-- CALL OVERLAY -->
+<div class="call-overlay hidden" id="callOverlay">
+  <div class="call-container">
+    <div class="call-remote-video-wrap">
+      <video id="remoteVideo" autoplay playsinline></video>
+      <div class="call-avatar-placeholder" id="callAvatarPlaceholder">
+        <div class="call-avatar-icon"><i class="fas fa-ghost"></i></div>
+        <div class="call-name" id="callRemoteName">Ghost</div>
+      </div>
+    </div>
+    <video id="localVideo" autoplay muted playsinline class="local-video"></video>
+    <div class="call-info">
+      <div class="call-status" id="callStatus">Calling...</div>
+      <div class="call-timer hidden" id="callTimer">00:00</div>
+    </div>
+    <div class="call-controls glass-card">
+      <button class="call-ctrl-btn" id="toggleMuteBtn"><i class="fas fa-microphone"></i></button>
+      <button class="call-ctrl-btn end" id="endCallBtn"><i class="fas fa-phone-slash"></i></button>
+      <button class="call-ctrl-btn" id="toggleCamBtn"><i class="fas fa-video"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Incoming Call UI -->
+<div class="incoming-call glass-card hidden" id="incomingCall">
+  <div class="incoming-avatar"><i class="fas fa-ghost"></i></div>
+  <div class="incoming-info">
+    <div class="incoming-name" id="incomingCallerName">Ghost</div>
+    <div class="incoming-type" id="incomingCallType">Audio Call</div>
+  </div>
+  <div class="incoming-actions">
+    <button class="call-ctrl-btn reject" id="rejectCallBtn"><i class="fas fa-phone-slash"></i></button>
+    <button class="call-ctrl-btn accept" id="acceptCallBtn"><i class="fas fa-phone"></i></button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="modal-overlay hidden" id="adminPanel">
+  <div class="modal admin-modal glass-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-shield-alt"></i> Admin Panel V2</h3>
+      <button class="icon-btn modal-close" data-modal="adminPanel"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="admin-stats" id="adminStats">
+      <div class="admin-stat"><span id="adminTotalRooms">0</span><label>Rooms</label></div>
+      <div class="admin-stat"><span id="adminTotalUsers">0</span><label>Users</label></div>
+      <div class="admin-stat"><span id="adminOnlineUsers">0</span><label>Online</label></div>
+      <div class="admin-stat"><span id="adminTotalMsgs">0</span><label>Msgs</label></div>
+    </div>
+    <div class="admin-rooms-list" id="adminRoomsList"></div>
+    <button class="btn-danger full-width" id="adminClearAllBtn"><i class="fas fa-broom"></i> Force Clear All Rooms</button>
+    <button class="btn-secondary full-width" id="adminLogout"><i class="fas fa-sign-out-alt"></i> Exit Admin</button>
+  </div>
+</div>
+
+<!-- Admin Auth Modal -->
+<div class="modal-overlay hidden" id="adminAuthModal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-lock"></i> Admin Access</h3>
+      <button class="icon-btn modal-close" data-modal="adminAuthModal"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="password" class="ghost-input" id="adminPassInput" placeholder="Enter admin password...">
+    <button class="btn-primary full-width" id="adminAuthBtn"><i class="fas fa-unlock"></i> Authenticate</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Audio -->
+<audio id="ringAudio" loop><source src="https://www.soundjay.com/phone/sounds/phone-calling-1.mp3" type="audio/mpeg"></audio>
+<audio id="msgSound"><source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg"></audio>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
